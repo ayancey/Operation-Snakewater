@@ -1,6 +1,13 @@
 # Operation Snakewater #
 
-Operation Snakewater is a brave attempt at *sufficient* security against malware for Windows users.
+Snakewater is a brave attempt at *sufficient* heuristic security against malware for Windows users.
+
+### Objectives ###
+
+* Fast
+* Non-intrusive
+* Samples that require updating should be *kept to a minimum*
+* High detection rate (end goal of 90+%) for our specified victim configurations
 
 ### Dependencies/How to Compile ###
 
@@ -10,22 +17,10 @@ Operation Snakewater is a brave attempt at *sufficient* security against malware
 * [psutil](https://github.com/giampaolo/psutil) is currently required for the [netstat metric](https://bitbucket.org/meanbergdesign/operation-snakewater/src/2da4203c97f638ee052d98e8ae3c3df8d530b28a/netstat_metric.py?at=master)
 
 
-### How do I get set up? ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
 
 ### Contribution guidelines ###
 
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+* Be smart
+* Don't fuck it up
+* When in doubt, branch out
