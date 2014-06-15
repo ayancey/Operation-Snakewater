@@ -5,8 +5,10 @@ Operation Snakewater is a brave attempt at *sufficient* security against malware
 ### Dependencies/How to Compile ###
 
 * Install Python **2.7**
-* [winreg_unicode](https://pypi.python.org/pypi/winreg_unicode) is currently required for the registry metric
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+* [winreg_unicode](https://pypi.python.org/pypi/winreg_unicode) is currently required for the [registry metric](https://bitbucket.org/meanbergdesign/operation-snakewater/src/2da4203c97f638ee052d98e8ae3c3df8d530b28a/registry_metric.py?at=master)
+* [colorama](https://pypi.python.org/pypi/colorama) is currently required
+* [psutil](https://github.com/giampaolo/psutil) is currently required for the [netstat metric](https://bitbucket.org/meanbergdesign/operation-snakewater/src/2da4203c97f638ee052d98e8ae3c3df8d530b28a/netstat_metric.py?at=master)
+
 
 ### How do I get set up? ###
 
