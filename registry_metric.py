@@ -27,6 +27,8 @@ def regkey_value(path, name="", start_key = None):
                 i += 1
             return desc[1]
 
+#----------------------------------------------------------------------------------------------------------------------------
+
 def execute():
 
 	#Get username to ensure registry access is working
@@ -36,8 +38,10 @@ def execute():
 	except:
 		print 'Registry check...' + Fore.RED + 'Bad' + Fore.RESET
 		sys.exit(0)
-
+		
+	#----------------------------------------------------------------------------------------------------------------------------
 	#Make sure user is running Windows
+	
 	sys.stdout.write('You are currently running ' + platform.platform() + ' with Python ' + sys.version.split(' ')[0] + '...')
 	if platform.system() == 'Windows':
 		print(Fore.GREEN + 'Good' + Fore.RESET)
@@ -46,9 +50,21 @@ def execute():
 		sys.exit(0)
 		
 	if platform.release() == 'XP':
-		print(Fore.RED + "Windows XP is insecure and a lot of heuristic techniques will not be supported." + Fore.RESET)
-
+		print(Fore.RED + "Windows XP is insecure and a lot of diagristic techniques will not be supported." + Fore.RESET)
+	
+	#----------------------------------------------------------------------------------------------------------------------------
+	#Check for taskmgr accessibility
+	try:
+		if( regkey_value("HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System", "DisableTaskMgr") ):
+			print 'Task Manager access is currently ' + Fore.RED + 'DISABLED' + Fore.RESET + '.'
+		else:
+			print 'Task Manager access is currently ' + Fore.GREEN + 'ENABLED' + Fore.RESET + '.'
+	except WindowsError:
+		print 'Task Manager access is currently ' + Fore.GREEN + 'UNSET' + Fore.RESET + '.'
+		
+	#----------------------------------------------------------------------------------------------------------------------------
 	#Check for LAN Proxy
+
 	proxy = regkey_value("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyEnable")
 	proxy_host = 'nothing'
 	if proxy:
