@@ -16,3 +16,6 @@ def execute():
 	#print str(data["content_scripts"][0]["all_frames"]) + ' suspicious'
 	#for permissions in data["permissions"]:
 	#print permissions
+
+if __name__ == "__main__":
+	execute()

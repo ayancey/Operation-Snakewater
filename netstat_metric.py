@@ -43,3 +43,6 @@ def execute():
 				print Fore.GREEN + 'not malicious' + Fore.RESET + '.'
 		except:
 			continue
+
+if __name__ == "__main__":
+	execute()

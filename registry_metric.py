@@ -59,3 +59,6 @@ def execute():
 		print 'Your LAN proxy is currently ' + Fore.RED + 'ON' + Fore.RESET + ' and set to ' + Fore.RED + proxy_host + Fore.RESET + '.' + Fore.YELLOW + ' If you did not set this, this can be a sign of adware or malware meant to intercept your internet connection.' + Fore.RESET
 	else:
 		print 'Your LAN proxy is currently ' + Fore.GREEN + 'OFF' + Fore.RESET + '.'
+
+if __name__ == "__main__":
+	execute()
