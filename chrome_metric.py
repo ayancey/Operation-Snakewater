@@ -10,6 +10,8 @@ def execute():
 	sys.stdout.write('Is Google Chrome installed? ')
 	if os.path.exists(os.environ['LOCALAPPDATA'] + '/Google/Chrome/User Data/Default/Preferences'):
 		print 'Yes'
+	else:
+		print 'No'
 	#data = json.loads(open('manifest.json', 'rb').read())
 	#print data["name"]
 	#print data["version"]
