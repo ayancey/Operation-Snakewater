@@ -45,6 +45,9 @@ def execute():
 	sys.stdout.write('Is Google Chrome installed? ')
 	if os.path.exists(os.environ['LOCALAPPDATA'] + '/Google/Chrome/User Data/Default/Preferences'):
 		print 'Yes'
+	else:
+		print 'No'
+		exit()
 	for extensions in os.listdir(os.environ['LOCALAPPDATA'] + '/Google/Chrome/User Data/Default/Extensions'):
 		scanextension(os.environ['LOCALAPPDATA'] + '/Google/Chrome/User Data/Default/Extensions/' + extensions)
 	
