@@ -10,6 +10,6 @@ print 'Snakewater Executioner v1.0 by Meanberg Design'
 sys.stdout.write("Press any key to begin...")
 raw_input()
 
-#chrome_metric.execute()
+chrome_metric.execute()
 registry_metric.execute()
-#netstat_metric.execute()
+netstat_metric.execute()
