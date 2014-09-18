@@ -1,5 +1,5 @@
 # Snakewater Startup Metric
-# Copyright Meanberg Design 2014
+# Copyright Alex Yancey & Meanberg Design 2014
 # Version 1.0
 # Developed in Ettlin AP CS Period 1
 
@@ -40,8 +40,30 @@ def is64bit():
 if is64bit():
 	print 'System is 64-bit, reflecting Wow6432Node.'
 
-thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
 
+thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
+#wkey = winreg_unicode.EnumKey(thekey,0)
+
+for i in range(1024):
+    try:
+    	print str(winreg_unicode.EnumValue(thekey, i)[0])
+    except WindowsError:
+    	break
+
+print 'HKCU'
+
+thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_CURRENT_USER,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
+#wkey = winreg_unicode.EnumKey(thekey,0)
+
+# C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+
+# C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+
+for i in range(1024):
+    try:
+    	print winreg_unicode.EnumValue(thekey, i)[0]
+    except WindowsError:
+    	break
 
 
 print winreg_unicode.EnumValue(thekey,0)
