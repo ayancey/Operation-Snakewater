@@ -5,6 +5,10 @@
 
 import winreg_unicode
 import ctypes
+import os
+
+import sys
+import win32com.client 
 
 # Old function from registry_metric, don't remember if I stole this or not
 def regkey_value(path, name="", start_key = None):
@@ -40,7 +44,7 @@ def is64bit():
 if is64bit():
 	print 'System is 64-bit, reflecting Wow6432Node.'
 
-
+print '=== HKLM ==='
 thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
 #wkey = winreg_unicode.EnumKey(thekey,0)
 
@@ -50,14 +54,9 @@ for i in range(1024):
     except WindowsError:
     	break
 
-print 'HKCU'
+print '=== HKCU ==='
 
 thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_CURRENT_USER,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
-#wkey = winreg_unicode.EnumKey(thekey,0)
-
-# C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
-
-# C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
 
 for i in range(1024):
     try:
@@ -66,6 +65,26 @@ for i in range(1024):
     	break
 
 
-print winreg_unicode.EnumValue(thekey,0)
+print '=== STARTUP ==='
+
+for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'):
+    if not files == 'desktop.ini':
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut("C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\" + files)
+        print(shortcut.Targetpath)
+        #print files
+
+print '=== STARTUP_EXEC ==='
+
+for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp'):
+    print files
+
+#wkey = winreg_unicode.EnumKey(thekey,0)
+
+# C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
+
+# C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
+
+#print winreg_unicode.EnumValue(thekey,0)
 #print regkey_value("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName", "ComputerName")
 #print regkey_value("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run","AdobeAAMUpdater-1.0")
