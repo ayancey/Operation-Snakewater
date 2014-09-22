@@ -9,8 +9,13 @@ import os
 
 import sys
 import win32com.client 
+import win32api
+from colorama import init, Fore, Back, Style
+init()
 
-# Old function from registry_metric, don't remember if I stole this or not
+
+
+# Old function from registry_metric, definitely stole this
 def regkey_value(path, name="", start_key = None):
     if isinstance(path, str):
         path = path.split("\\")
@@ -30,15 +35,58 @@ def regkey_value(path, name="", start_key = None):
                 i += 1
             return desc[1]
 
+# Win32Api voodoo that I totally stole from SO
+def getFileProperties(fname):
+    """
+    Read all properties of the given file return them as a dictionary.
+    """
+    propNames = ('Comments', 'InternalName', 'ProductName',
+        'CompanyName', 'LegalCopyright', 'ProductVersion',
+        'FileDescription', 'LegalTrademarks', 'PrivateBuild',
+        'FileVersion', 'OriginalFilename', 'SpecialBuild')
+
+    props = {'FixedFileInfo': None, 'StringFileInfo': None, 'FileVersion': None}
+
+    try:
+        # backslash as parm returns dictionary of numeric info corresponding to VS_FIXEDFILEINFO struc
+        fixedInfo = win32api.GetFileVersionInfo(fname, '\\')
+        props['FixedFileInfo'] = fixedInfo
+        props['FileVersion'] = "%d.%d.%d.%d" % (fixedInfo['FileVersionMS'] / 65536,
+                fixedInfo['FileVersionMS'] % 65536, fixedInfo['FileVersionLS'] / 65536,
+                fixedInfo['FileVersionLS'] % 65536)
+
+        # \VarFileInfo\Translation returns list of available (language, codepage)
+        # pairs that can be used to retreive string info. We are using only the first pair.
+        lang, codepage = win32api.GetFileVersionInfo(fname, '\\VarFileInfo\\Translation')[0]
+
+        # any other must be of the form \StringfileInfo\%04X%04X\parm_name, middle
+        # two are language/codepage pair returned from above
+
+        strInfo = {}
+        for propName in propNames:
+            strInfoPath = u'\\StringFileInfo\\%04X%04X\\%s' % (lang, codepage, propName)
+            ## print str_info
+            strInfo[propName] = win32api.GetFileVersionInfo(fname, strInfoPath)
+
+        props['StringFileInfo'] = strInfo
+    except:
+        pass
+
+    return props
+
 # Reads registry and determines if system is 64-bit or not
 def is64bit():
 	architecture = regkey_value('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\Environment', 'PROCESSOR_ARCHITECTURE')
-	if 'x86' in architecture:
+	if 'x86' in architecture:  
 		return False
 	else:
 		return True
 
+
 # Found a really weird nuance in the registry. More here: http://windowsitpro.com/systems-management/whats-wow6432node-under-hkeylocalmachinesoftware-registry-subkey
+# Even crazier shit, https://mail.python.org/pipermail/python-win32/2009-June/009263.html this didn't help
+# Wow64 Filesystem Redirection needs to fuck off
+
 
 ## Checking if 64-bit or not (see above link)
 if is64bit():
@@ -71,13 +119,32 @@ for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start M
     if not files == 'desktop.ini':
         shell = win32com.client.Dispatch("WScript.Shell")
         shortcut = shell.CreateShortCut("C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\" + files)
-        print(shortcut.Targetpath)
+        the_real_path = shortcut.Targetpath
+
+        if not os.path.exists(the_real_path):
+            if not os.path.exists(the_real_path.replace("Program Files (x86)", "Program Files")):
+                print "Shortcut path doesn't exist"
+            else:
+                print Fore.RED + 'Unreflected shortcut path exists...what the fuck is this bullshit' + Fore.RESET
+                the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
+
+        if not getFileProperties(the_real_path)['StringFileInfo'] == None:
+            print getFileProperties(the_real_path)['StringFileInfo']['FileDescription']
+        else:
+            print the_real_path
+
+        #.get('FileVersion','None?')
         #print files
+
 
 print '=== STARTUP_EXEC ==='
 
 for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp'):
-    print files
+    if not files == 'desktop.ini':
+        shell = win32com.client.Dispatch("WScript.Shell")
+        shortcut = shell.CreateShortCut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\\" + files)
+        print(shortcut.Targetpath)
+        #print files
 
 #wkey = winreg_unicode.EnumKey(thekey,0)
 
