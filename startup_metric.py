@@ -82,6 +82,26 @@ def is64bit():
 	else:
 		return True
 
+# Uses multiple (two) methods to find a reasonable name for the executable
+def Get_Reliable_Name(path):
+    if not getFileProperties(path)['StringFileInfo'] == None:
+        if not getFileProperties(path)['StringFileInfo']['FileDescription'] == None:
+            return getFileProperties(path)['StringFileInfo']['FileDescription'].encode('ascii','ignore')
+            #print 'u'
+        else:
+            return os.path.basename(path)
+    else:
+        return os.path.basename(path)
+
+# For use in registry keys where full file path is provided in CLI form with quotes and appended parameters
+def Strip_Quotes_and_Params(fullpath):
+    if fullpath.count('"') == 2:
+        return fullpath.split('"')[1]
+    else:
+        if fullpath == "":
+            print Fore.RED + "I forgot what I did but if this happens it shouldn't." + Fore.RESET
+        if fullpath.count(".exe") == 1:
+            return fullpath.replace(fullpath.split('.exe')[1],"").strip()
 
 # Found a really weird nuance in the registry. More here: http://windowsitpro.com/systems-management/whats-wow6432node-under-hkeylocalmachinesoftware-registry-subkey
 # Even crazier shit, https://mail.python.org/pipermail/python-win32/2009-June/009263.html this didn't help
@@ -98,7 +118,8 @@ thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_LOCAL_MACHINE,'SOFTWARE\Micr
 
 for i in range(1024):
     try:
-    	print str(winreg_unicode.EnumValue(thekey, i)[0])
+        if not str(winreg_unicode.EnumValue(thekey, i)[1]) == '':
+            print Get_Reliable_Name(Strip_Quotes_and_Params(str(winreg_unicode.EnumValue(thekey, i)[1])))
     except WindowsError:
     	break
 
@@ -108,7 +129,8 @@ thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_CURRENT_USER,'SOFTWARE\Micro
 
 for i in range(1024):
     try:
-    	print winreg_unicode.EnumValue(thekey, i)[0]
+        if not str(winreg_unicode.EnumValue(thekey, i)[1]) == '':
+            print Get_Reliable_Name(Strip_Quotes_and_Params(str(winreg_unicode.EnumValue(thekey, i)[1])))
     except WindowsError:
     	break
 
@@ -125,13 +147,10 @@ for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start M
             if not os.path.exists(the_real_path.replace("Program Files (x86)", "Program Files")):
                 print "Shortcut path doesn't exist"
             else:
-                print Fore.RED + 'Unreflected shortcut path exists...what the fuck is this bullshit' + Fore.RESET
+                print Fore.RED + 'Unreflected shortcut path exists...Wow6432Node bullshit' + Fore.RESET
                 the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
 
-        if not getFileProperties(the_real_path)['StringFileInfo'] == None:
-            print getFileProperties(the_real_path)['StringFileInfo']['FileDescription']
-        else:
-            print the_real_path
+        print Get_Reliable_Name(the_real_path)
 
         #.get('FileVersion','None?')
         #print files
@@ -143,7 +162,7 @@ for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\St
     if not files == 'desktop.ini':
         shell = win32com.client.Dispatch("WScript.Shell")
         shortcut = shell.CreateShortCut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\\" + files)
-        print(shortcut.Targetpath)
+        print Get_Reliable_Name(shortcut.Targetpath)
         #print files
 
 #wkey = winreg_unicode.EnumKey(thekey,0)
