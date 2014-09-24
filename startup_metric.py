@@ -3,7 +3,6 @@
 # Version 1.0
 # Developed in Ettlin AP CS Period 1
 
-import winreg_unicode
 import ctypes
 import os
 
@@ -12,7 +11,7 @@ import win32com.client
 import win32api
 from colorama import init, Fore, Back, Style
 init()
-
+import _winreg
 
 
 # Old function from registry_metric, definitely stole this
@@ -20,18 +19,18 @@ def regkey_value(path, name="", start_key = None):
     if isinstance(path, str):
         path = path.split("\\")
     if start_key is None:
-        start_key = getattr(winreg_unicode, path[0])
+        start_key = getattr(_winreg, path[0])
         return regkey_value(path[1:], name, start_key)
     else:
         subkey = path.pop(0)
-    with winreg_unicode.OpenKey(start_key, subkey) as handle:
+    with _winreg.OpenKey(start_key, subkey) as handle:
         assert handle
         if path:
             return regkey_value(path, name, handle)
         else:
             desc, i = None, 0
             while not desc or desc[0] != name:
-                desc = winreg_unicode.EnumValue(handle, i)
+                desc = _winreg.EnumValue(handle, i)
                 i += 1
             return desc[1]
 
@@ -82,16 +81,19 @@ def is64bit():
 	else:
 		return True
 
-# Uses multiple (two) methods to find a reasonable name for the executable
+# Uses multiple (three ) methods to find a reasonable name for the executable
 def Get_Reliable_Name(path):
     if not getFileProperties(path)['StringFileInfo'] == None:
         if not getFileProperties(path)['StringFileInfo']['FileDescription'] == None:
-            return getFileProperties(path)['StringFileInfo']['FileDescription'].encode('ascii','ignore')
+            return Fore.GREEN + getFileProperties(path)['StringFileInfo']['FileDescription'].encode('ascii','ignore') + Fore.RESET
             #print 'u'
         else:
-            return os.path.basename(path)
+            if not getFileProperties(path)['StringFileInfo']['ProductName'] == None:
+                return Fore.BLUE + getFileProperties(path)['StringFileInfo']['ProductName'].encode('ascii','ignore') + Fore.RESET
+            else:
+                return Fore.RED + os.path.basename(path) + Fore.RESET
     else:
-        return os.path.basename(path)
+        return Fore.RED + os.path.basename(path) + Fore.RESET
 
 # For use in registry keys where full file path is provided in CLI form with quotes and appended parameters
 def Strip_Quotes_and_Params(fullpath):
@@ -110,60 +112,80 @@ def Strip_Quotes_and_Params(fullpath):
 
 ## Checking if 64-bit or not (see above link)
 if is64bit():
-	print 'System is 64-bit, reflecting Wow6432Node.'
+	print 'System is 64-bit, bypassing Wow6432Node with KEY_WOW64_64KEY flag.'
 
-print '=== HKLM ==='
-thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
-#wkey = winreg_unicode.EnumKey(thekey,0)
+if is64bit():
+    print '=== HKLM 32-bit ==='
+else:
+    print '=== HKLM ==='
+
+thekey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
 
 for i in range(1024):
     try:
-        if not str(winreg_unicode.EnumValue(thekey, i)[1]) == '':
-            print Get_Reliable_Name(Strip_Quotes_and_Params(str(winreg_unicode.EnumValue(thekey, i)[1])))
+        if not str(_winreg.EnumValue(thekey, i)[1]) == '':
+            print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
     except WindowsError:
     	break
+
+if is64bit():
+    print '=== HKLM 64-bit ==='
+    thekey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',0,_winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
+    for i in range(1024):
+        try:
+            if not str(_winreg.EnumValue(thekey, i)[1]) == '':
+                print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
+        except WindowsError:
+            break
+
 
 print '=== HKCU ==='
 
-thekey = winreg_unicode.OpenKey(winreg_unicode.HKEY_CURRENT_USER,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
+thekey = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
 
 for i in range(1024):
     try:
-        if not str(winreg_unicode.EnumValue(thekey, i)[1]) == '':
-            print Get_Reliable_Name(Strip_Quotes_and_Params(str(winreg_unicode.EnumValue(thekey, i)[1])))
+        if not str(_winreg.EnumValue(thekey, i)[1]) == '':
+            print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
     except WindowsError:
-    	break
+        break
 
 
 print '=== STARTUP ==='
 
-for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'):
-    if not files == 'desktop.ini':
-        shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut("C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\" + files)
-        the_real_path = shortcut.Targetpath
+try:
+    for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'):
+        if not files == 'desktop.ini':
+            shell = win32com.client.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortCut("C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\" + files)
+            the_real_path = shortcut.Targetpath
 
-        if not os.path.exists(the_real_path):
-            if not os.path.exists(the_real_path.replace("Program Files (x86)", "Program Files")):
-                print "Shortcut path doesn't exist"
-            else:
-                print Fore.RED + 'Unreflected shortcut path exists...Wow6432Node bullshit' + Fore.RESET
-                the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
+            if not os.path.exists(the_real_path):
+                if not os.path.exists(the_real_path.replace("Program Files (x86)", "Program Files")):
+                    print "Shortcut path doesn't exist"
+                else:
+                    print Fore.RED + 'Unreflected shortcut path exists...Wow6432Node bullshit' + Fore.RESET
+                    the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
 
-        print Get_Reliable_Name(the_real_path)
+            print Get_Reliable_Name(the_real_path)
 
-        #.get('FileVersion','None?')
-        #print files
+            #.get('FileVersion','None?')
+            #print files
+except WindowsError:
+    print ':/'
 
 
 print '=== STARTUP_EXEC ==='
 
-for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp'):
-    if not files == 'desktop.ini':
-        shell = win32com.client.Dispatch("WScript.Shell")
-        shortcut = shell.CreateShortCut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\\" + files)
-        print Get_Reliable_Name(shortcut.Targetpath)
-        #print files
+try:
+    for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp'):
+        if not files == 'desktop.ini':
+            shell = win32com.client.Dispatch("WScript.Shell")
+            shortcut = shell.CreateShortCut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\\" + files)
+            print Get_Reliable_Name(shortcut.Targetpath)
+            #print files
+except WindowsError:
+    print ':/'
 
 #wkey = winreg_unicode.EnumKey(thekey,0)
 
