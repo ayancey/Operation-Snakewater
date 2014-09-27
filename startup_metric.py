@@ -109,28 +109,40 @@ def Strip_Quotes_and_Params(fullpath):
 # Even crazier shit, https://mail.python.org/pipermail/python-win32/2009-June/009263.html this didn't help
 # Wow64 Filesystem Redirection needs to fuck off
 
+def execute():
+    ## Checking if 64-bit or not (see above link)
+    if is64bit():
+    	print 'System is 64-bit, bypassing Wow6432Node with KEY_WOW64_64KEY flag.'
 
-## Checking if 64-bit or not (see above link)
-if is64bit():
-	print 'System is 64-bit, bypassing Wow6432Node with KEY_WOW64_64KEY flag.'
+    if is64bit():
+        print '=== HKLM 32-bit ==='
+    else:
+        print '=== HKLM ==='
 
-if is64bit():
-    print '=== HKLM 32-bit ==='
-else:
-    print '=== HKLM ==='
+    thekey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
 
-thekey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
+    for i in range(1024):
+        try:
+            if not str(_winreg.EnumValue(thekey, i)[1]) == '':
+                print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
+        except WindowsError:
+        	break
 
-for i in range(1024):
-    try:
-        if not str(_winreg.EnumValue(thekey, i)[1]) == '':
-            print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
-    except WindowsError:
-    	break
+    if is64bit():
+        print '=== HKLM 64-bit ==='
+        thekey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',0,_winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
+        for i in range(1024):
+            try:
+                if not str(_winreg.EnumValue(thekey, i)[1]) == '':
+                    print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
+            except WindowsError:
+                break
 
-if is64bit():
-    print '=== HKLM 64-bit ==='
-    thekey = _winreg.OpenKey(_winreg.HKEY_LOCAL_MACHINE,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run',0,_winreg.KEY_READ | _winreg.KEY_WOW64_64KEY)
+
+    print '=== HKCU ==='
+
+    thekey = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
+
     for i in range(1024):
         try:
             if not str(_winreg.EnumValue(thekey, i)[1]) == '':
@@ -139,60 +151,41 @@ if is64bit():
             break
 
 
-print '=== HKCU ==='
+    print '=== STARTUP ==='
 
-thekey = _winreg.OpenKey(_winreg.HKEY_CURRENT_USER,'SOFTWARE\Microsoft\Windows\CurrentVersion\Run')
-
-for i in range(1024):
     try:
-        if not str(_winreg.EnumValue(thekey, i)[1]) == '':
-            print Get_Reliable_Name(Strip_Quotes_and_Params(str(_winreg.EnumValue(thekey, i)[1])))
+        for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'):
+            if not files == 'desktop.ini':
+                shell = win32com.client.Dispatch("WScript.Shell")
+                shortcut = shell.CreateShortCut("C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\" + files)
+                the_real_path = shortcut.Targetpath
+
+                if not os.path.exists(the_real_path):
+                    if not os.path.exists(the_real_path.replace("Program Files (x86)", "Program Files")):
+                        print "Shortcut path doesn't exist"
+                    else:
+                        print Fore.RED + 'Unreflected shortcut path exists...Wow6432Node bullshit' + Fore.RESET
+                        the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
+
+                print Get_Reliable_Name(the_real_path)
+
+                #.get('FileVersion','None?')
+                #print files
     except WindowsError:
-        break
+        print ':/'
 
 
-print '=== STARTUP ==='
+    print '=== STARTUP_EXEC ==='
 
-try:
-    for files in os.listdir('C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup'):
-        if not files == 'desktop.ini':
-            shell = win32com.client.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortCut("C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\\" + files)
-            the_real_path = shortcut.Targetpath
+    try:
+        for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp'):
+            if not files == 'desktop.ini':
+                shell = win32com.client.Dispatch("WScript.Shell")
+                shortcut = shell.CreateShortCut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\\" + files)
+                print Get_Reliable_Name(shortcut.Targetpath)
+                #print files
+    except WindowsError:
+        print ':/'
 
-            if not os.path.exists(the_real_path):
-                if not os.path.exists(the_real_path.replace("Program Files (x86)", "Program Files")):
-                    print "Shortcut path doesn't exist"
-                else:
-                    print Fore.RED + 'Unreflected shortcut path exists...Wow6432Node bullshit' + Fore.RESET
-                    the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
-
-            print Get_Reliable_Name(the_real_path)
-
-            #.get('FileVersion','None?')
-            #print files
-except WindowsError:
-    print ':/'
-
-
-print '=== STARTUP_EXEC ==='
-
-try:
-    for files in os.listdir('C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp'):
-        if not files == 'desktop.ini':
-            shell = win32com.client.Dispatch("WScript.Shell")
-            shortcut = shell.CreateShortCut("C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\\" + files)
-            print Get_Reliable_Name(shortcut.Targetpath)
-            #print files
-except WindowsError:
-    print ':/'
-
-#wkey = winreg_unicode.EnumKey(thekey,0)
-
-# C:\Users\Alex\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup
-
-# C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp
-
-#print winreg_unicode.EnumValue(thekey,0)
-#print regkey_value("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName", "ComputerName")
-#print regkey_value("HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run","AdobeAAMUpdater-1.0")
+if __name__ == "__main__":
+    execute()
