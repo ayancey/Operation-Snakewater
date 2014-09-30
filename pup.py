@@ -11,5 +11,5 @@
 
 pups = []
 
-def add(readable_name, det_type, percentage, file_location = None, regkey = None):
-	pups.append({readable_name, det_type, percentage, file_location, regkey})
+def add(readable_name, det_type, percentage, resolution = None, file_location = None, regkey = None):
+	pups.append({readable_name, det_type, percentage, resolution, file_location, regkey})

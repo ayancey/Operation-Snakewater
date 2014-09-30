@@ -1,11 +1,13 @@
 # Snakewater Netstat Metric
 # Copyright Meanberg Design 2014
 # Version 1.0
+# Developed in part Ettlin AP CS Period 1
 
 import sys
 import csv
 import psutil
 from colorama import init, Fore, Back, Style
+import pup
 init()
 
 def status(s):
@@ -37,6 +39,7 @@ def execute():
 			sys.stdout.write(con.raddr[0] + ' is ')
 			try:
 				badip = [i for i, v in enumerate(ip_list) if v[0] == con.raddr[0]]
+			 	pup.add('Malicious IP connection on ' + ip_list[badip[0]][1], 2, 60)
 				print Fore.RED + 'malicious. ' + Fore.YELLOW + ip_list[badip[0]][1] + Fore.RESET
 				#print ' not malicious'
 			except:

@@ -6,6 +6,7 @@ import sys
 import winreg_unicode
 import platform
 from colorama import init, Fore, Back, Style
+import pup
 init()
 
 def regkey_value(path, name="", start_key = None):
@@ -46,16 +47,19 @@ def execute():
 	if platform.system() == 'Windows':
 		print(Fore.GREEN + 'Good' + Fore.RESET)
 	else:
+		pup.add('Not running Windows', 0, 0)
 		print(Fore.RED + 'Bad' + Fore.RESET)
 		sys.exit(0)
 		
 	if platform.release() == 'XP':
-		print(Fore.RED + "Windows XP is insecure and a lot of diagristic techniques will not be supported." + Fore.RESET)
+		pup.add('Running Windows XP', 1, 30)
+		print(Fore.RED + "Windows XP is insecure and diagristic techniques will be limited." + Fore.RESET)
 	
 	#----------------------------------------------------------------------------------------------------------------------------
 	#Check for taskmgr accessibility
 	try:
 		if( regkey_value("HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System", "DisableTaskMgr") ):
+			pup.add('Task Manager disabled', 1, 40, "If you or your sysadmin did not do this, could be cause for suspicion.",None,'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\DisableTaskMgr')
 			print 'Task Manager access is currently ' + Fore.RED + 'DISABLED' + Fore.RESET + '.'
 		else:
 			print 'Task Manager access is currently ' + Fore.GREEN + 'ENABLED' + Fore.RESET + '.'
