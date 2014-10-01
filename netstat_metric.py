@@ -39,7 +39,7 @@ def execute():
 			sys.stdout.write(con.raddr[0] + ' is ')
 			try:
 				badip = [i for i, v in enumerate(ip_list) if v[0] == con.raddr[0]]
-			 	pup.add('Malicious IP connection on ' + ip_list[badip[0]][1], 2, 60)
+			 	pup.add('Malicious IP connection on ' + con.raddr[0] + ' (' + ip_list[badip[0]][1] + ')', 2, 60)
 				print Fore.RED + 'malicious. ' + Fore.YELLOW + ip_list[badip[0]][1] + Fore.RESET
 				#print ' not malicious'
 			except:

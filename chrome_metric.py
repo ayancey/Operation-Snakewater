@@ -1,11 +1,14 @@
 # Snakewater Chrome Metric
 # Copyright Meanberg Design 2014
 # Version 1.0
+# Developed in part Ettlin AP CS Period 1
+
 import json
 from pprint import pprint
 import sys
 import os
 from colorama import init, Fore, Back, Style
+import pup
 init()
 
 def scanextension(path):
@@ -22,8 +25,10 @@ def scanextension(path):
 					if permission == 'management':
 						print Fore.RED + permission + Fore.RESET + ' - ' + Fore.YELLOW + ' This extension is allowed to manage other extensions.' + Fore.RESET
 					elif permission == 'http://*/*':
+						pup.add(data["name"].encode("ascii", "ignore") + ' in Chrome can match ALL non-SSL pages', 70, 3, "Disable " + data["name"].encode("ascii", "ignore") + ' Chrome extension', path)
 						print Fore.RED + permission + Fore.RESET + ' - ' + Fore.YELLOW + ' This extension is allowed to match with ALL non-secure webpages.' + Fore.RESET
 					elif permission == 'https://*/*':
+						pup.add(data["name"].encode("ascii", "ignore") + ' in Chrome can match ALL SSL pages', 80, 3, "Disable " + data["name"].encode("ascii", "ignore") + ' Chrome extension', path)
 						print Fore.RED + permission + Fore.RESET + ' - ' + Fore.YELLOW + ' This extension is allowed to match with ALL secure webpages.' + Fore.RESET
 					elif permission == 'tabs':
 						print Fore.RED + permission + Fore.RESET + ' - ' + Fore.YELLOW + ' This extension is allowed to manipulate tab information.' + Fore.RESET
@@ -35,8 +40,10 @@ def scanextension(path):
 					if csparams == 'matches':
 						for matches in data['content_scripts'][0]['matches']:
 							if matches == 'http://*/*':
+								pup.add(data["name"].encode("ascii", "ignore") + ' in Chrome can embed JS into ALL non-SSL pages', 70, 3, "Disable " + data["name"].encode("ascii", "ignore") + ' Chrome extension', path)
 								print Fore.RED + matches + Fore.RESET + Fore.YELLOW + ' - This extension embeds Javascript code into every non-secure webpage.' + Fore.RESET
 							elif matches == 'https://*/*':
+								pup.add(data["name"].encode("ascii", "ignore") + ' in Chrome can embed JS into ALL SSL pages', 80, 3, "Disable " + data["name"].encode("ascii", "ignore") + ' Chrome extension', path)
 								print Fore.RED + matches + Fore.RESET + Fore.YELLOW + ' - This extension embeds Javascript code into every secure webpage.' + Fore.RESET
 				
 
