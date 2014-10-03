@@ -36,6 +36,8 @@ def execute():
 		try:
 			if con.raddr[0] == '127.0.0.1':
 				continue
+			if con.raddr[0] == '192.168.1.1':
+				continue
 			sys.stdout.write(con.raddr[0] + ' is ')
 			try:
 				badip = [i for i, v in enumerate(ip_list) if v[0] == con.raddr[0]]

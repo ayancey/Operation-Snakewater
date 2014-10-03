@@ -6,8 +6,6 @@
 
 # To-do:
 	# Modify suspicion based on:
-		# Icons?
-		# Extension Name
 		# Presence of key?
 	# Add more comments
 
@@ -54,8 +52,10 @@ def scanextension(path):
 				this_extension[3] -= 15
 
 			# This could totally work
-			if data["icons"]:
-				print 'icons exist'
+			if "icons" in data:
+				#print 'icons exist'
+				this_extension[3] -= (len(data["icons"]) * 15)
+				#print 
 
 			print 'Extension name: ' + Fore.MAGENTA + extension_name + Fore.RESET
 			print 'Extension version: ' + data["version"].encode("ascii", "ignore")
