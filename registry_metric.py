@@ -77,8 +77,13 @@ def execute():
 			proxy_host = regkey_value("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyServer")
 		except:
 			pass
-		pup.add('LAN proxy enabled', 1, 40, "If you or your sysadmin did not do this, it could be cause for suspicion.",None,'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyServer')
-		print 'Your LAN proxy is currently ' + Fore.RED + 'ON' + Fore.RESET + ' and set to ' + Fore.RED + proxy_host + Fore.RESET + '.' + Fore.YELLOW + ' If you did not set this, this can be a sign of adware or malware meant to intercept your internet connection.' + Fore.RESET
+		if '127.0.0.1' in proxy_host:
+			pup.add('LAN proxy enabled on loopback', 2, 80, "There's a good chance this is a bad thing.",None,'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyServer')
+			print 'Your LAN proxy is currently ' + Fore.RED + 'ON LOOPBACK' + Fore.RESET + ' and set to ' + Fore.RED + proxy_host + Fore.RESET + '.' + Fore.YELLOW + ' This is not good.' + Fore.RESET
+		else:
+			pup.add('LAN proxy enabled', 1, 40, "If you or your sysadmin did not do this, it could be cause for suspicion.",None,'HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ProxyServer')
+			print 'Your LAN proxy is currently ' + Fore.RED + 'ON' + Fore.RESET + ' and set to ' + Fore.RED + proxy_host + Fore.RESET + '.' + Fore.YELLOW + ' If you did not set this, this can be a sign of adware or malware meant to intercept your internet connection.' + Fore.RESET
+
 	else:
 		print 'Your LAN proxy is currently ' + Fore.GREEN + 'OFF' + Fore.RESET + '.'
 
