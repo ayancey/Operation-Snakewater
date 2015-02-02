@@ -1,5 +1,5 @@
 # Snakewater Registry Metric
-# Copyright Meanberg Design 2014
+# Alex Yancey
 # Version 1.0
 # Developed in part Ettlin AP CS Period 1
 
@@ -29,11 +29,10 @@ def regkey_value(path, name="", start_key = None):
                 i += 1
             return desc[1]
 
-#----------------------------------------------------------------------------------------------------------------------------
 
 def execute():
 
-	#Get username to ensure registry access is working
+	# Checks registry access
 	try: 
 		username = regkey_value("HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName", "ComputerName")
 		print 'Your username is ' + username + ' (registry check)...' + Fore.GREEN + 'Good' + Fore.RESET
@@ -41,9 +40,8 @@ def execute():
 		print 'Registry check...' + Fore.RED + 'Bad' + Fore.RESET
 		sys.exit(0)
 		
-	#----------------------------------------------------------------------------------------------------------------------------
-	#Make sure user is running Windows
-	
+
+	# Verifies OS...lol
 	sys.stdout.write('You are currently running ' + platform.platform() + ' with Python ' + sys.version.split(' ')[0] + '...')
 	if platform.system() == 'Windows':
 		print(Fore.GREEN + 'Good' + Fore.RESET)
@@ -56,8 +54,7 @@ def execute():
 		pup.add('Running Windows XP', 1, 30, 'It is recommend that you update to a newer version of Windows to continue receiving security updates.')
 		print(Fore.RED + "Windows XP is insecure and diagristic techniques will be limited." + Fore.RESET)
 	
-	#----------------------------------------------------------------------------------------------------------------------------
-	#Check for taskmgr accessibility
+	# Task manager policy changes are kinda common for RATs
 	try:
 		if( regkey_value("HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System", "DisableTaskMgr") ):
 			pup.add('Task Manager disabled', 1, 40, "If you or your sysadmin did not do this, it could be cause for suspicion.",None,'HKEY_LOCAL_MACHINE\Software\Microsoft\Windows\CurrentVersion\Policies\System\DisableTaskMgr')
@@ -67,9 +64,7 @@ def execute():
 	except WindowsError:
 		print 'Task Manager access is currently ' + Fore.GREEN + 'UNSET' + Fore.RESET + '.'
 		
-	#----------------------------------------------------------------------------------------------------------------------------
-	#Check for LAN Proxy
-
+	# Adware loves to use the LAN proxy to inject ads
 	proxy = regkey_value("HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Internet Settings", "ProxyEnable")
 	proxy_host = 'nothing'
 	if proxy:

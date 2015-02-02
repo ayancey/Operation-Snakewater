@@ -1,5 +1,5 @@
 # Snakewater Executioner
-# Copyright Meanberg Design 2014
+# Alex Yancey
 # Version 1.0
 # Developed in part Ettlin AP CS Period 1
 
@@ -20,7 +20,7 @@ init()
 
 os.system('cls' if os.name == 'nt' else 'clear')
 
-print 'Snakewater Executioner v1.0 by Meanberg Design'
+print 'Snakewater Executioner v1.0'
 sys.stdout.write("Press any key to begin...")
 raw_input()
 

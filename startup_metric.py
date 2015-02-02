@@ -1,5 +1,5 @@
 # Snakewater Startup Metric
-# Copyright Alex Yancey & Meanberg Design 2014
+# Alex Yancey
 # Version 1.0
 # Developed in Ettlin AP CS Period 1
 
@@ -81,7 +81,7 @@ def is64bit():
 	else:
 		return True
 
-# Uses multiple (three ) methods to find a reasonable name for the executable
+# Uses multiple (three) methods to find a reasonable name for the executable
 def Get_Reliable_Name(path):
     if not getFileProperties(path)['StringFileInfo'] == None:
         if not getFileProperties(path)['StringFileInfo']['FileDescription'] == None:
@@ -105,12 +105,9 @@ def Strip_Quotes_and_Params(fullpath):
         if fullpath.count(".exe") == 1:
             return fullpath.replace(fullpath.split('.exe')[1],"").strip()
 
-# Found a really weird nuance in the registry. More here: http://windowsitpro.com/systems-management/whats-wow6432node-under-hkeylocalmachinesoftware-registry-subkey
-# Even crazier shit, https://mail.python.org/pipermail/python-win32/2009-June/009263.html this didn't help
-# Wow64 Filesystem Redirection needs to fuck off
+# I really have no idea how registry reflection actually works. I think this pretty much covers it.
 
 def execute():
-    ## Checking if 64-bit or not (see above link)
     if is64bit():
     	print 'System is 64-bit, bypassing Wow6432Node with KEY_WOW64_64KEY flag.'
 
@@ -168,9 +165,6 @@ def execute():
                         the_real_path = the_real_path.replace("Program Files (x86)", "Program Files")
 
                 print Get_Reliable_Name(the_real_path)
-
-                #.get('FileVersion','None?')
-                #print files
     except WindowsError:
         print ':/'
 

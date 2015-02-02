@@ -1,5 +1,5 @@
 # Snakewater Chrome Metric
-# Copyright Meanberg Design 2014
+# Alex Yancey
 # Version 1.0
 # Developed in part Ettlin AP CS Period 1
 

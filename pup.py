@@ -1,5 +1,5 @@
 # Snakewater PUP Identifier (PUP.PY)
-# Copyright Alex Yancey & Meanberg Design 2014
+# Copyright Alex Yancey
 # Version 1.0
 # Developed in Ettlin AP CS Period 1
 
